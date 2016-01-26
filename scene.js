@@ -126,5 +126,11 @@ function init() {
     initShaders();    
     initScene();
 
+    queue = new PriorityQueue(function(r1, r2) {
+        return r1.t - r2.t;
+    });
+    p = {x: 0, y: 0}
+    queue.enq(new roadSegment(0,p));
+
     tick();
 }
