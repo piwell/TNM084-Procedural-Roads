@@ -1,132 +1,72 @@
 <html>
 	<head>
-		<title></title>
+		<title>Procedural roads</title>
 		<script type="text/javascript" src="assets/glMatrix-0.9.5.min.js"></script>
     	<script type="text/javascript" src="assets/webgl-utils.js"></script>
     	<script type="text/javascript" src="assets/PriorityQueue.js"></script>
+    	<script src="assets/three.min.js"></script>
+    	<script type="text/javascript" src="assets/OrbitControls.js"></script>
+    	<script type="text/javascript" src="roadGeneration.js"></script>
+    	<script type="text/javascript" src="maps.js"></script>
+    	<!-- // <script type="text/javascript" src="setup.js"></script> -->
 		<style>
 			body { margin: 0; }
-			canvas { width: 100%; height: 100% }
+			canvas { width: 100%; height: 800%}
 		</style>
 	</head>
 	<body>
-		<script src="assets/three.min.js"></script>
 		<script>
-		var segmentCounter = 0;
-		var material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+		var camera, controls, scene, renderer;
+		var width, height;
+		var whie, red;
 
-		function point(p){
-			this.x = p.x;
-			this.y = p.y;
+		var queue, intersections ,geometry, pointMaterial;
+
+		var render = function(){
+			// controls.update();
+			requestAnimationFrame( render );
+			renderer.render(scene, camera);
+
+			// geometry.vertices.push(new THREE.Vector3( 20*Math.random(), 20*Math.random(), 0));
+			// geometry.verticesNeedUpdate = true;
+
 		}
 
-		function roadSegment(p, d, t){
-			this.start = p.clone();
-
-			this.l = 0.2*Math.random();
-			this.r = Math.PI*Math.random()-0.5*Math.PI;
-
-			this.dir = d.clone();
-			this.dir.applyAxisAngle(new THREE.Vector3(0,0,1),this.r);
-
-			this.end = this.start.clone();
-			this.end.addScaledVector(this.dir, this.l);
-			this.t = t;
-			this.spawn = true;
-			// this.geometry = new THREE.Geometry();
-			// this.geometry.vertices.push(this.start.clone(), this.end.clone());
-			// this.line = new THREE.Line(this.geometry, material);
-
-			this.updateLine = function(){
-				this.geometry = new THREE.Geometry();
-				this.geometry.vertices.push(this.start.clone(), this.end.clone());
-				this.line = new THREE.Line(this.geometry, material);
-			}
-
-			this.updateLine();
-		}
-
-			var scene = new THREE.Scene();
-			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
-
-			var renderer = new THREE.WebGLRenderer();
+		function onWindowResize() {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix(); 
 			renderer.setSize( window.innerWidth, window.innerHeight );
-			document.body.appendChild( renderer.domElement );
+		}
 
-			// var geometry = new THREE.Geometry();
-			// geometry.vertices.push(
-			// 	new THREE.Vector3(0,0,0),
-			// 	new THREE.Vector3(0,1,0));
+		function init(){
+			width = window.innerWidth;
+			height = window.innerHeight;
 
-			
-			// var p = new point({x:0,y:0});
-			// var rs = new roadSegment(0,p);
-			// // var line = new THREE.Line( geometry, material );
-			// scene.add( rs.line );
-			camera.position.z = 5;
+			white 	= new THREE.MeshBasicMaterial( { color: 0xffffff } );
+			red 	= new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+			pointMaterial = new THREE.PointsMaterial( { color: 0xff0000, size: 2, sizeAttenuation: false } );
+
+			scene = new THREE.Scene();
+			camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 1000);
+			camera.position.z = 800;
+			renderer = new THREE.WebGLRenderer();
+			renderer.setSize(width, height);
+			// controls = new THREE.OrbitControls( camera, renderer.domElement );
+			document.body.appendChild(renderer.domElement);
 
 			queue = new PriorityQueue(function(r1, r2){
 				return r2.t - r1.t;
 			})
 
-			var p = new THREE.Vector3(0,0,0);
-			var d = new THREE.Vector3(0,1,0);
-			queue.enq(new roadSegment(p,d,0));
-			var render = function () {
-				requestAnimationFrame( render );
-				renderer.render(scene, camera);
-			};
+			// createTerrain();
+			firstSegment();
 
+			window.addEventListener( 'resize', onWindowResize, false );
+			setInterval(createRoads, 0);
 			render();
+		}
 
-			function localConstraints(r){
-				var raycaster =  new THREE.Raycaster();
-				raycaster.set(r.start.addScaledVector(r.dir,0.001), r.dir, 0.001, 0.5*r.l);
-
-				var intersects = raycaster.intersectObjects(scene.children);
-				if(intersects.length>0){
-					var inter = intersects[0];
-					// console.log(inter.distance);
-					if(inter.distance < 0.5){
-						r.end = inter.point.clone();
-						r.l = inter.distance;
-						// r.updateLine();
-						r.geometry = new THREE.Geometry();
-						r.geometry.vertices.push(r.start.clone(), r.end.clone());
-						r.line = new THREE.Line(r.geometry, material);
-						r.spawn = false;
-						return true;
-					 }
-				}
-				// console.log(intersects.length);
-				// if(intersects.length>0){
-				// 	console.log(intersects[0].object);
-				// }
-				return true;
-				// return (intersects.length > 0) ? false:true;
-			}
-
-			function createRoads(){
-				if(queue.size()>0){
-					r = queue.deq();
-					accepted = localConstraints(r);
-					if(accepted){
-						scene.add(r.line);
-						// console.log(segmentCounter);
-						segmentCounter++;
-						// if(segmentCounter <= 1000){
-							if(r.spawn){
-								queue.enq(new roadSegment(r.end, r.dir, r.t+1));
-								queue.enq(new roadSegment(r.end, r.dir, r.t+1));
-								// queue.enq(new roadSegment(r.end, r.dir, r.t+1));
-								// queue.enq(new roadSegment(r.end, r.dir, r.t+1));
-							}
-						// }	
-					}
-				}
-			}
-
-			setInterval(createRoads,0);
+		init();
 		</script>
 	</body>
 </html>
