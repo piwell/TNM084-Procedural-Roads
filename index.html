@@ -25,6 +25,9 @@
 
 		var queue, intersections ,geometry, pointMaterial;
 		var dataW, dataT, dataP;
+
+		var intervalId;
+
 		var render = function(){
 			controls.update();
 			requestAnimationFrame( render );
@@ -70,7 +73,7 @@
 			firstSegment();
 
 			window.addEventListener( 'resize', onWindowResize, false );
-			setInterval(createRoads, 0);
+			intervalId = setInterval(createRoads, 0);
 			render();
 		}
 

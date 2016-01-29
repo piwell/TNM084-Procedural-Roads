@@ -48,9 +48,9 @@ function createWaterMap(){
 
 			if(value > 0.5){
 				waterMap[i][j] = 1;
-				dataW[(3*i)+3*j*width+0] = 255*value;
-				dataW[(3*i)+3*j*width+1] = 0;
-				dataW[(3*i)+3*j*width+2] = 0;
+				dataW[(3*i)+3*j*width+0] = 0.1*255*value;
+				dataW[(3*i)+3*j*width+1] = 0.1*255*value;
+				dataW[(3*i)+3*j*width+2] = 0.1*255*value;
 
 				dataT[(3*i)+3*j*width+0] = 255*value;
 				dataT[(3*i)+3*j*width+1] = 255*value;
@@ -59,7 +59,7 @@ function createWaterMap(){
 				waterMap[i][j] = 0;
 				dataW[(3*i)+3*j*width+0] = 0;
 				dataW[(3*i)+3*j*width+1] = 0;
-				dataW[(3*i)+3*j*width+2] = 255*value;
+				dataW[(3*i)+3*j*width+2] = 0.5*255*value+0.1*255;
 
 				dataT[(3*i)+3*j*width+0] = 255*0.5;
 				dataT[(3*i)+3*j*width+1] = 255*0.5;
@@ -75,7 +75,7 @@ function createWaterMap(){
 	dispTex = new THREE.DataTexture(dataT, width, height, THREE.RGBFormat);	
 	colorTex.needsUpdate = true;
 	dispTex.needsUpdate = true;
-	var mat = new THREE.MeshPhongMaterial( {map: colorTex, displacementMap: dispTex, displacementScale: 100, side: THREE.DoubleSide} );
+	var mat = new THREE.MeshPhongMaterial( {map: colorTex, displacementMap: dispTex, displacementScale: 0, side: THREE.DoubleSide} );
 	// console.log(waterMap[50][535])
 	var mesh = new THREE.Mesh(geometry, mat);
 	mesh.position.z = -10;
