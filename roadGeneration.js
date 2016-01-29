@@ -28,7 +28,7 @@ function roadSegment(p, d, t){
 function firstSegment(){
 	segmentCounter = 0;
 	// var p = new THREE.Vector3(-width/2, -height/2, 1);
-	var p = new THREE.Vector3(0, 0, 1);
+	var p = new THREE.Vector3(0, 0, 100);
 	var d = new THREE.Vector3(0, 1, 0);
 	queue.enq(new roadSegment(p, d, 0));
 }
@@ -54,6 +54,19 @@ function createIntersection(r, p, t){
 
 //work on it baby
 function localConstraints(r){
+
+		var x = r.end.x;
+		var y = r.end.y;
+
+		var i = Math.floor(x+width/2);
+		var j = Math.floor(y+height/2);
+		w = (dataW[(3*i)+3*j*width]>0)?1:0;
+		console.log(waterMap[i][j] + " " + w);
+		if(w == 0 ){
+			r.spawn = false;
+			return false;
+		}
+
 		var raycaster =  new THREE.Raycaster();
 		raycaster.set(r.start.clone().addScaledVector(r.dir,0.001), r.dir, 0.001, r.l);
 		var intersects = raycaster.intersectObjects(scene.children);
@@ -81,8 +94,8 @@ function localConstraints(r){
 			 	}	
 
 			 }
-			 if(d < 1.5*r.l*r.l){
-			 	console.log(d)
+			 if(d < 1.2*1.2*r.l*r.l){
+			 	// console.log(d)
 			 	createIntersection(r, p, false);
 			 	return true; 
 			 }

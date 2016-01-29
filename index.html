@@ -4,6 +4,7 @@
 		<script type="text/javascript" src="assets/glMatrix-0.9.5.min.js"></script>
     	<script type="text/javascript" src="assets/webgl-utils.js"></script>
     	<script type="text/javascript" src="assets/PriorityQueue.js"></script>
+    	<script type="text/javascript" src="assets/perlin.js"></script>
     	<script src="assets/three.min.js"></script>
     	<script type="text/javascript" src="assets/OrbitControls.js"></script>
     	<script type="text/javascript" src="roadGeneration.js"></script>
@@ -18,12 +19,14 @@
 		<script>
 		var camera, controls, scene, renderer;
 		var width, height;
-		var whie, red;
+		var whie, red, green, blue;
+		var terrainMap, waterMap, populationMap;
+		var colorTex, dispTex;
 
 		var queue, intersections ,geometry, pointMaterial;
-
+		var dataW, dataT, dataP;
 		var render = function(){
-			// controls.update();
+			controls.update();
 			requestAnimationFrame( render );
 			renderer.render(scene, camera);
 
@@ -39,26 +42,31 @@
 		}
 
 		function init(){
-			width = window.innerWidth;
-			height = window.innerHeight;
+			width = 1200;//window.innerWidth;
+			height = 800;//window.innerHeight;
 
 			white 	= new THREE.MeshBasicMaterial( { color: 0xffffff } );
 			red 	= new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+			green 	= new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+			blue 	= new THREE.MeshBasicMaterial( { color: 0x0000ff } );
 			pointMaterial = new THREE.PointsMaterial( { color: 0xff0000, size: 2, sizeAttenuation: false } );
+
+			noise.seed(Math.random());
 
 			scene = new THREE.Scene();
 			camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 1000);
 			camera.position.z = 800;
 			renderer = new THREE.WebGLRenderer();
 			renderer.setSize(width, height);
-			// controls = new THREE.OrbitControls( camera, renderer.domElement );
+			controls = new THREE.OrbitControls( camera, renderer.domElement );
 			document.body.appendChild(renderer.domElement);
 
 			queue = new PriorityQueue(function(r1, r2){
 				return r2.t - r1.t;
 			})
 
-			// createTerrain();
+			createTerrainMap();
+			createWaterMap();
 			firstSegment();
 
 			window.addEventListener( 'resize', onWindowResize, false );
