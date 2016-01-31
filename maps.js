@@ -35,35 +35,30 @@ function createWaterMap(){
 	dataW = new Uint8Array(width*height*3);
 	dataT = new Uint8Array(width*height*3);
 	dataP = new Uint8Array(width*height);
-	waterMap = new Array(width);
 
 	for(var i=0; i<width; i++){
-		waterMap[i] = new Array(height);
 		for(var j=0; j<height; j++){
 			value = (1+noise.simplex2(i/1000,j/1000))/2;
-			var x = i-width/2;
-			var y = height/2-j;
 
 			dataP[i+j*width] = 255*value;
 
 			if(value > 0.5){
-				waterMap[i][j] = 1;
-				dataW[(3*i)+3*j*width+0] = 0.1*255*value;
-				dataW[(3*i)+3*j*width+1] = 0.1*255*value;
-				dataW[(3*i)+3*j*width+2] = 0.1*255*value;
+				value = 2*(value-0.5);
+				dataW[(3*i)+3*j*width+0] = 0.5*255*value+0.1*value;
+				dataW[(3*i)+3*j*width+1] = 0.5*255*value+0.1*value;
+				dataW[(3*i)+3*j*width+2] = 0.5*255*value+0.1*value;
 
 				dataT[(3*i)+3*j*width+0] = 255*value;
 				dataT[(3*i)+3*j*width+1] = 255*value;
 				dataT[(3*i)+3*j*width+2] = 255*value;
 			}else{
-				waterMap[i][j] = 0;
 				dataW[(3*i)+3*j*width+0] = 0;
 				dataW[(3*i)+3*j*width+1] = 0;
-				dataW[(3*i)+3*j*width+2] = 0.5*255*value+0.1*255;
+				dataW[(3*i)+3*j*width+2] = 0.4*255*value+0.2*255;
 
-				dataT[(3*i)+3*j*width+0] = 255*0.5;
-				dataT[(3*i)+3*j*width+1] = 255*0.5;
-				dataT[(3*i)+3*j*width+2] = 255*0.5;
+				dataT[(3*i)+3*j*width+0] = 0;//255*0.5;
+				dataT[(3*i)+3*j*width+1] = 0;//255*0.5;
+				dataT[(3*i)+3*j*width+2] = 0;//255*0.5;
 			}
 
 		}
