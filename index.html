@@ -8,6 +8,8 @@
     	<script src="assets/three.min.js"></script>
     	<script type="text/javascript" src="assets/OrbitControls.js"></script>
     	<script type="text/javascript" src="utils.js"></script>
+    	<script type="text/javascript" src="localConstraints.js"></script>
+    	<script type="text/javascript" src="globalGoals.js"></script>
     	<script type="text/javascript" src="roadGeneration.js"></script>
     	<script type="text/javascript" src="maps.js"></script>
     	<!-- // <script type="text/javascript" src="setup.js"></script> -->
@@ -69,8 +71,7 @@
 				return r2.t - r1.t;
 			})
 
-			createTerrainMap();
-			createWaterMap();
+			createMaps();
 			firstSegment();
 
 			window.addEventListener( 'resize', onWindowResize, false );

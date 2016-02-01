@@ -20,3 +20,17 @@ function sortIndex(array, func){
 	indices.sort(func);
 	return indices;
 }
+
+function createIntersection(r){
+    var geometry = new THREE.Geometry();
+    geometry.vertices.push(r.end.clone());
+    var intersectPoint = new THREE.Points(geometry, pointMaterial);
+    scene.add(intersectPoint);
+
+    crossings.push(r.end.clone());
+}
+
+function sqrdDist(p1, p2){
+    return  (p1.x-p2.x)*(p1.x-p2.x)+
+            (p1.y-p2.y)*(p1.y-p2.y);
+}
