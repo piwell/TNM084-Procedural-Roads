@@ -51,11 +51,14 @@
 			width = 1200;//window.innerWidth;
 			height = 800;//window.innerHeight;
 
-			white 	= new THREE.MeshBasicMaterial( { color: 0xffffff } );
+			roadColor 		= new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 1 } );
+			highwayColor 	= new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 3 } );
 			red 	= new THREE.MeshBasicMaterial( { color: 0xff0000 } );
 			green 	= new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 			blue 	= new THREE.MeshBasicMaterial( { color: 0x0000ff } );
-			pointMaterial = new THREE.PointsMaterial( { color: 0xff0000, size: 2, sizeAttenuation: false } );
+			pointMaterialRed 	= new THREE.PointsMaterial( { color: 0xff0000, size: 4, sizeAttenuation: false } );
+			pointMaterialGreen 	= new THREE.PointsMaterial( { color: 0x00ff00, size: 4, sizeAttenuation: false } );
+			pointMaterialBlue 	= new THREE.PointsMaterial( { color: 0x0000ff, size: 4, sizeAttenuation: false } );
 
 			noise.seed(Math.random());
 

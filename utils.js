@@ -21,10 +21,10 @@ function sortIndex(array, func){
 	return indices;
 }
 
-function createIntersection(r){
+function createIntersection(r, color){
     var geometry = new THREE.Geometry();
     geometry.vertices.push(r.end.clone());
-    var intersectPoint = new THREE.Points(geometry, pointMaterial);
+    var intersectPoint = new THREE.Points(geometry, color);
     scene.add(intersectPoint);
 
     crossings.push(r.end.clone());

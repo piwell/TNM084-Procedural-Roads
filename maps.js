@@ -9,7 +9,7 @@ function createMaps(){
 		for(var j=0; j<height; j++){
 			value = (1+noise.simplex2(i/1000,j/1000))/2;
 
-			dataP[i+j*width] = 255*value;
+			dataP[i+j*width] = 255*2*(value-0.5);
 
 			if(value > 0.5){
 				value = 2*(value-0.5);
@@ -39,7 +39,7 @@ function createMaps(){
 	dispTex = new THREE.DataTexture(dataT, width, height, THREE.RGBFormat);	
 	colorTex.needsUpdate = true;
 	dispTex.needsUpdate = true;
-	var mat = new THREE.MeshPhongMaterial( {map: colorTex, displacementMap: dispTex, displacementScale: 0.5*255, side: THREE.DoubleSide} );
+	var mat = new THREE.MeshPhongMaterial( {map: colorTex, displacementMap: dispTex, displacementScale: 0.0*255, side: THREE.DoubleSide} );
 	// console.log(waterMap[50][535])
 	var mesh = new THREE.Mesh(geometry, mat);
 	mesh.position.z = -10;
