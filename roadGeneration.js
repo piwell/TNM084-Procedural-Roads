@@ -8,7 +8,7 @@ function roadSegment(p, d, t, highway){
 
     this.highway = highway;
 
-    this.l = (this.highway)?60:30;
+    this.l = (this.highway)?30:30+10*Math.random();
     // var r = 1.0*Math.PI*Math.random()-0.5*Math.PI;
 
     this.dir = d.clone();
@@ -43,9 +43,24 @@ function roadSegment(p, d, t, highway){
 function firstSegment(){
     segmentCounter = 0;
     // var p = new THREE.Vector3(-width/2, -height/2, 100);
-    var p = new THREE.Vector3(0, 0, 0);
+    // var p = new THREE.Vector3(0, 0, 0);
     var d = new THREE.Vector3(0, 1, 0);
-    queue.enq(new roadSegment(p, d, 0, true));
+    // var r = new roadSegment(center, d, 0, true);
+    // var angle = 2.0;
+    // var steps = 40;
+    // rotArray = [];
+    // for(var i=-steps; i<=steps; i++){
+    //     rotArray.push(rot + angle*(i/steps)); 
+    // }
+    // // console.log(rotArray);
+    // function cmprFunc(i,j){
+    //     return valueFunction(r, rotArray[j])-valueFunction(r, rotArray[i]);
+    // }
+    // index = sortIndex(rotArray, cmprFunc);
+
+    // r.dir.applyAxisAngle(new THREE.Vector3(0, 0, 1), rotArray[index[i]]*Math.PI);
+
+    queue.enq(new roadSegment(center, d, 0, true));
 }
 
 function createRoads(){
@@ -54,6 +69,7 @@ function createRoads(){
         accepted = localConstraints(r);
         
         if(accepted){
+        // if(accepted && r.highway){
             scene.add(r.line);
             seg.push(r.line);
             segmentCounter++;

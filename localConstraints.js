@@ -1,12 +1,7 @@
-function inIlegalArea(p){
-    w = dataW[convert3(p)];
-    return  (p.x <= -width/2.0)  || (p.x > width/2.0)  || 
-            (p.y <= -height/2.0) || (p.y > height/2.0) ||
-            w == 0;
-
-}
-
 function illegalArea(r){
+    if(r.highway && !outsideArea(r.end)){
+        return true;
+    }
     if(inIlegalArea(r.end)){        //inside illegal area
         //(if highway, extend)
         
@@ -65,57 +60,74 @@ function intersections(r){
     raycaster.set(r.start.clone().addScaledVector(r.dir,0.1*r.l), r.dir, 0.1*r.l, r.l);
     var intersects = raycaster.intersectObjects(seg);
 
-    //type 1: prune
-    if(intersects.length>0.0){
-        var intersect = intersects[0];
-        if(intersect.distance <= 0.1*r.l){
-            // createIntersection(r, pointMaterialBlue);
-
-            return false;
-        }
-        if(intersect.distance < r.l){
-            console.log("intersection, prune"); 
-            r.updateLine(intersect.point, false)
-            createIntersection(r, pointMaterialRed);
-            return true;
-         }
-    }
-    //type 2: find nearest crossing
     function cmprFunc(i,j){
         return sqrdDist(r.end,crossings[i])-sqrdDist(r.end, crossings[j]);
     }
 
+    inter = false;
+    //type 1: prune
+    if(intersects.length>0.0){
+        var intersect = intersects[0];
+        if(intersect.distance <= 0.1*r.l){
+            // createIntersection(r.end, pointMaterialBlue);
+
+            return false;
+        }
+        if(intersect.distance < r.l){
+            // console.log("intersection, prune"); 
+            r.updateLine(intersect.point, r.highway)
+            // createIntersection(r.end, pointMaterialRed);
+            // return true;
+            inter = true;
+         }
+    }
+
+
+    //type 2: find nearest crossing
     if(crossings.length > 0){
         index = sortIndex(crossings, cmprFunc);
         var p = crossings[index[0]];
-        var d = sqrdDist(r.end, p);
+        var d = Math.sqrt(sqrdDist(r.end, p));
 
-        if(d <  1.1*1.1*r.l*r.l){
+        if(d <  0.5*r.l){
+            console.log("intersection, nearest");
+            console.log(d + " " + r.l);
             r.updateLine(p, false);
+            createIntersection(r.end, pointMaterialBlue);
+
             return true; 
         }
+
+        if(inter){
+            createIntersection(r.end, pointMaterialRed);
+            return true;
+
+        }
+
     }
     
     //type 3: extend
     if(intersects.length>0){
          if(intersect.distance < 1.2*r.l){
-            console.log("intersection, extend"); 
-            r.updateLine(intersect.point, false);
-            createIntersection(r, pointMaterialGreen);
+            // console.log("intersection, extend"); 
+            r.updateLine(intersect.point, r.highway);
+            createIntersection(r.end, pointMaterialGreen);
             return true;
          }
     }
 
     //noting wrong, return true
+    // createIntersection(r.end, pointMaterialBlue);
+    crossings.push(r.end);
     return true;
 }
 
 function localConstraints(r){
     if(illegalArea(r) && intersections(r)){
         // console.log(dataP[convert(r.end)])
-        if(!r.highway && dataP[convert(r.end)] < 50){
+        if(!r.highway && dataP[convert(r.end)] < 20){
             // r.spawn = false;
-            return false;
+            // return false;
         }
         return true;
     }
