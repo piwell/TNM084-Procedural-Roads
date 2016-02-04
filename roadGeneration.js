@@ -8,7 +8,7 @@ function roadSegment(p, d, t, highway){
 
     this.highway = highway;
 
-    this.l = (this.highway)?30:30+10*Math.random();
+    this.l = (this.highway)?40:40//+10*Math.random();
     // var r = 1.0*Math.PI*Math.random()-0.5*Math.PI;
 
     this.dir = d.clone();
@@ -66,6 +66,7 @@ function firstSegment(){
 function createRoads(){
     if(!queue.isEmpty()){
         r = queue.deq();
+        // if(r.highway){
         accepted = localConstraints(r);
         
         if(accepted){
@@ -81,6 +82,7 @@ function createRoads(){
             }
             // }
         }
+        // }
     }else{
         clearInterval(intervalId);
         console.log("Oh what a pretty city");

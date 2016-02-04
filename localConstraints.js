@@ -91,9 +91,9 @@ function intersections(r){
 
         if(d <  0.5*r.l){
             console.log("intersection, nearest");
-            console.log(d + " " + r.l);
+            // console.log(d + " " + r.l);
             r.updateLine(p, false);
-            createIntersection(r.end, pointMaterialBlue);
+            // createIntersection(r.end, pointMaterialBlue);
 
             return true; 
         }
