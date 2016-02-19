@@ -7,7 +7,9 @@
     	<script type="text/javascript" src="assets/perlin.js"></script>
     	<script src="assets/three.min.js"></script>
     	<script type="text/javascript" src="assets/OrbitControls.js"></script>
+
     	<script type="text/javascript" src="utils.js"></script>
+    	<script type="text/javascript" src="valueFunctions.js"></script>
     	<script type="text/javascript" src="localConstraints.js"></script>
     	<script type="text/javascript" src="globalGoals.js"></script>
     	<script type="text/javascript" src="roadGeneration.js"></script>
@@ -30,6 +32,8 @@
 		var dataW, dataT, dataP;
 
 		var intervalId;
+
+		var roadLength = 30;
 
 		var render = function(){
 			controls.update();

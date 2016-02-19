@@ -21,15 +21,6 @@ function sortIndex(array, func){
 	return indices;
 }
 
-function createIntersection(v, color){
-    var geometry = new THREE.Geometry();
-    geometry.vertices.push(v);
-    var intersectPoint = new THREE.Points(geometry, color);
-    scene.add(intersectPoint);
-
-    crossings.push(v);
-}
-
 function sqrdDist(p1, p2){
     return  (p1.x-p2.x)*(p1.x-p2.x)+
             (p1.y-p2.y)*(p1.y-p2.y);
@@ -47,17 +38,70 @@ function inWater(p){
 
 function inIlegalArea(p){
     return outsideArea(p) || inWater(p);
-    // w = dataW[convert3(p)];
-    // return  (p.x <= -width/2.0)  || (p.x > width/2.0)  || 
-    //         (p.y <= -height/2.0) || (p.y > height/2.0) ||
-    //         w == 0;
-
 }
 
 function densityAt(p){
     if(outsideArea(p)){
         return 0;
     }else{
-        return dataP[convert(p)];
+        return dataP[convert(p)]/255.0;
     }
+}
+
+function searchBestAngle(r, maxAngle, steps, valfunc, angles, values){
+    var steps = maxAngle/0.025;
+    for(var i=-steps; i<=steps; i++){
+        angles.push(maxAngle*(i/steps));
+        values.push(valfunc(r, angles[i+steps]));
+    }
+
+    // angles.push(-0.5, 0.0, 0.5);
+    // values.push(valfunc(r,-0.5),valfunc(r,0.0),valfunc(r,0.5));
+    
+    function cmprFunc(i,j){
+        return values[j]-values[i];
+    }
+
+    return sortIndex(values, cmprFunc);
+}
+
+function populationDensity(r, rot){
+    var steps = 20;
+    var length = 1;
+
+    p = r.start.clone();
+    d = r.dir.clone();
+    d.applyAxisAngle(new THREE.Vector3(0, 0, 1), rot*Math.PI)
+
+    if(r.highway){
+        length = 10;
+        steps = steps*length;
+    }
+
+    var totDensity = 0;
+    for(var i=0; i<steps; i++){
+        p.addScaledVector(d, length*r.l*(i/steps));
+        density = densityAt(p);
+        totDensity += density;//dataP[convert(p)];
+        p = r.start.clone();
+    }
+    return totDensity/steps;
+}
+
+function createIntersection(pos, color){
+    var geometry = new THREE.Geometry();
+    geometry.vertices.push(pos);
+    var intersectPoint = new THREE.Points(geometry, color);
+    scene.add(intersectPoint);
+
+    crossings.push(pos);
+}
+
+
+function minAngleDist(angle, prevAngle){
+    function cmprFunc(i,j){
+        return Math.abs(prevAngle[i]-angle)-Math.abs(prevAngle[j]-angle);
+    }
+    index = sortIndex(prevAngle, cmprFunc);
+    return Math.abs(prevAngle[index[0]]-angle);
 }

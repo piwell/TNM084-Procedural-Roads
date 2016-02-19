@@ -1,30 +1,24 @@
 var segmentCounter;
 var crossings = [];
-var seg = [];
+var placedSegments = [];
 
 function roadSegment(p, d, t, highway){
     this.start = p.clone();
-    // this.start.z = 0.1*dataT[convert3(this.start)+3];
-
     this.highway = highway;
 
-    this.l = (this.highway)?40:40//+10*Math.random();
-    // var r = 1.0*Math.PI*Math.random()-0.5*Math.PI;
+    this.l = 30+10*Math.random();
 
     this.dir = d.clone();
-    // this.dir.applyAxisAngle(new THREE.Vector3(0, 0, 1), r);
 
     this.end = this.start.clone();
     this.end.addScaledVector(this.dir, this.l);
-    // this.end.z = 0.1*dataT[convert3(this.end)+3];
-    // console.log(0.4*da taT[convert3(this.end)+3]);  
 
     this.t = t;
     this.spawn = true;
     
 
-    this.updateLine = function(p, spawn){
-        this.end = p.clone();
+    this.updateLine = function(end, spawn){
+        this.end = end.clone();
         this.l = this.start.distanceTo(this.end);
         this.spawn = spawn;
 
@@ -37,30 +31,42 @@ function roadSegment(p, d, t, highway){
         }
     }
 
+    this.extendSegment = function(rot, t, highway){
+        var d = r.dir.clone();
+        d.applyAxisAngle(new THREE.Vector3(0, 0, 1), rot*Math.PI);
+        return new roadSegment(r.end, d, t, highway);
+    }
+
     this.updateLine(this.end, true);
 } 
 
 function firstSegment(){
     segmentCounter = 0;
-    // var p = new THREE.Vector3(-width/2, -height/2, 100);
-    // var p = new THREE.Vector3(0, 0, 0);
+
     var d = new THREE.Vector3(0, 1, 0);
-    // var r = new roadSegment(center, d, 0, true);
-    // var angle = 2.0;
-    // var steps = 40;
-    // rotArray = [];
-    // for(var i=-steps; i<=steps; i++){
-    //     rotArray.push(rot + angle*(i/steps)); 
-    // }
-    // // console.log(rotArray);
-    // function cmprFunc(i,j){
-    //     return valueFunction(r, rotArray[j])-valueFunction(r, rotArray[i]);
-    // }
-    // index = sortIndex(rotArray, cmprFunc);
+    var r = new roadSegment(center, d, 0, true);
+    
+    angles = [];
+    values = [];
+    index = searchBestAngle(r, 2.0, 100, basic, angles, values);
 
-    // r.dir.applyAxisAngle(new THREE.Vector3(0, 0, 1), rotArray[index[i]]*Math.PI);
 
-    queue.enq(new roadSegment(center, d, 0, true));
+    for(var i=0; i<angles.length; i++){
+
+        r.dir.applyAxisAngle(new THREE.Vector3(0, 0, 1), angles[index[0]]*Math.PI);
+        end = center.clone();
+        end.addScaledVector(r.dir, r.l);
+        r.updateLine(end, true);
+
+        queue.enq(r);
+        d = d.clone().negate();
+        r = new roadSegment(center, d, 0, true); 
+        queue.enq(r);
+
+        if(values[i] < highwayContThresh){
+            break;
+        }
+    }
 }
 
 function createRoads(){
@@ -70,17 +76,14 @@ function createRoads(){
         accepted = localConstraints(r);
         
         if(accepted){
-        // if(accepted && r.highway){
             scene.add(r.line);
-            seg.push(r.line);
+            placedSegments.push(r.line);
             segmentCounter++;
-            // console.log(segmentCounter); 
             segments = globalGoals(r);
             // if(r.highway){
             for(var i=0; i<segments.length; i++){
                 queue.enq(segments[i]);
             }
-            // }
         }
         // }
     }else{

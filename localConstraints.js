@@ -1,135 +1,138 @@
+function localConstraints(r){
+    if(illegalArea(r) && intersections(r)){
+        if(!r.highway && dataP[convert(r.end)] < 20){ // Stop if no popdensity 
+            // r.spawn = false;
+            // return false;
+        }
+        return true;
+    }
+    return false;
+}
+
 function illegalArea(r){
     if(r.highway && !outsideArea(r.end)){
         return true;
     }
     if(inIlegalArea(r.end)){        //inside illegal area
-        //(if highway, extend)
-        
-        // prune
-        var v = r.end.clone();
-        var steps = 5;
-        for(var i=1; i< steps; i++){
-            v.addScaledVector(r.dir.clone().negate(),r.l*0.0*(i/steps));
-            if(!inIlegalArea(v)){
-                r.updateLine(v, true);
-                console.log("illegal area, pruned"); 
-                return true;
-            }
-            v = r.end.clone();
+        //(if highway, extend?)
+        if(pruneLine(r,10)){
+            return true;
         }
 
-        //rotate TODO: Make much better!
-        var rSteps = 100;
-        v = r.start.clone();
-        var d = r.dir.clone();
-        for(var i=1; i<rSteps; i++){
-            var rot = (i/rSteps)*2.0;
-            d.applyAxisAngle(new THREE.Vector3(0, 0, 1), rot*Math.PI);
-            v.addScaledVector(d,r.l);
-            if(!inIlegalArea(v)){
-                // console.log("illegal area, rotated " + rot); 
-                r.dir = d;
-                r.updateLine(v, true); 
-                return true;
-            }
-
-            d = r.dir.clone();
-            v = r.start.clone();
-        
-            d.applyAxisAngle(new THREE.Vector3(0, 0, 1), -rot*Math.PI);
-            v.addScaledVector(r.dir,r.l);
-            if(!inIlegalArea(v)){
-                // console.log("illegal area, rotated " + (-rot)); 
-                r.dir = d;
-                r.updateLine(v, true); 
-                return true;
-            }
-            d = r.dir.clone();
-            v = r.start.clone();
+        if(rotateLine(r,100, 2.0)){
+            return true;
         }
-
-        // console.log("Failed illegalArea");
+        
         return false;
     }
-
     return true;
 }
 
 function intersections(r){
     var raycaster =  new THREE.Raycaster();
     raycaster.set(r.start.clone().addScaledVector(r.dir,0.1*r.l), r.dir, 0.1*r.l, r.l);
-    var intersects = raycaster.intersectObjects(seg);
+    var intersects = raycaster.intersectObjects(placedSegments);
 
     function cmprFunc(i,j){
         return sqrdDist(r.end,crossings[i])-sqrdDist(r.end, crossings[j]);
     }
 
-    inter = false;
-    //type 1: prune
+    if(!pruneSegment(r, intersects)){
+        return false;
+    }
+
+    if(findClosestCrossing(r, intersects)){
+        createIntersection(r.end, pointMaterialRed);
+        return true;
+    }
+
+    if(extendSegment(r, intersects)){
+        createIntersection(r.end, pointMaterialBlue);
+        return true;
+    }
+
+    crossings.push(r.end);
+    return true;
+}
+
+function pruneSegment(r, intersects){
     if(intersects.length>0.0){
         var intersect = intersects[0];
         if(intersect.distance <= 0.1*r.l){
-            // createIntersection(r.end, pointMaterialBlue);
-
             return false;
         }
         if(intersect.distance < r.l){
-            // console.log("intersection, prune"); 
-            r.updateLine(intersect.point, r.highway)
-            // createIntersection(r.end, pointMaterialRed);
-            // return true;
-            inter = true;
+            r.updateLine(intersect.point, r.highway);
+            return true;
          }
     }
+    return true;
+}
 
+function findClosestCrossing(r, intersects){
+    function cmprFunc(i,j){
+        return sqrdDist(r.end,crossings[i])-sqrdDist(r.end, crossings[j]);
+    }
 
-    //type 2: find nearest crossing
     if(crossings.length > 0){
         index = sortIndex(crossings, cmprFunc);
         var p = crossings[index[0]];
         var d = Math.sqrt(sqrdDist(r.end, p));
 
-        if(d <  0.5*r.l){
-            console.log("intersection, nearest");
-            // console.log(d + " " + r.l);
+        if(d < 0.8*r.l){
             r.updateLine(p, false);
-            // createIntersection(r.end, pointMaterialBlue);
-
             return true; 
         }
-
-        if(inter){
-            createIntersection(r.end, pointMaterialRed);
-            return true;
-
-        }
-
     }
-    
-    //type 3: extend
+    return false;
+}
+
+
+function extendSegment(r, intersects){
     if(intersects.length>0){
-         if(intersect.distance < 1.2*r.l){
-            // console.log("intersection, extend"); 
+         var intersect = intersects[0];
+         if(intersect.distance < 1.5*r.l && intersect.distance > 1.0*r.l){
             r.updateLine(intersect.point, r.highway);
-            createIntersection(r.end, pointMaterialGreen);
+            findClosestCrossing(r, intersects);
             return true;
          }
     }
-
-    //noting wrong, return true
-    // createIntersection(r.end, pointMaterialBlue);
-    crossings.push(r.end);
-    return true;
+    return false;
 }
 
-function localConstraints(r){
-    if(illegalArea(r) && intersections(r)){
-        // console.log(dataP[convert(r.end)])
-        if(!r.highway && dataP[convert(r.end)] < 20){
-            // r.spawn = false;
-            // return false;
+function pruneLine(r, steps){
+    var v = r.end.clone();
+    for(var i=1; i< steps; i++){
+        v.addScaledVector(r.dir.clone().negate(),r.l*0.0*(i/steps));
+        if(!inIlegalArea(v)){
+            r.updateLine(v, true);
+            return true;
         }
-        return true;
+        v = r.end.clone();
+    }
+    return false;
+}
+
+function rotateLine(r, steps, angle){
+    v = r.start.clone();
+    var d = r.dir.clone();
+
+    for(var i=1; i<2*steps; i++){
+        var rot = (i/steps)*angle;
+        if(i%2 == 0){
+            rot = -((i-1)/steps)*angle;
+        }
+        
+        d.applyAxisAngle(new THREE.Vector3(0, 0, 1), rot*Math.PI);
+        v.addScaledVector(d,r.l);
+        if(!inIlegalArea(v)){
+            r.dir = d;
+            r.updateLine(v, true); 
+            return true;
+        }
+
+        d = r.dir.clone();
+        v = r.start.clone();
     }
     return false;
 }

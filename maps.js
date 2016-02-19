@@ -12,22 +12,22 @@ function createMaps(){
 		for(var j=0; j<height; j++){
 			value = (1+noise.simplex2(i/1000,j/1000))/2;
 
-		
-
 			if(value > 0.5){
 				value = 2*(value-0.5);
-				dataW[(3*i)+3*j*width+0] = 0.5*255*value+0.1*value;
-				dataW[(3*i)+3*j*width+1] = 0.5*255*value+0.1*value;
-				dataW[(3*i)+3*j*width+2] = 0.5*255*value+0.1*value;
+				dataW[(3*i)+3*j*width+0] = 0.5*255*value+0.1*value; //r
+				dataW[(3*i)+3*j*width+1] = 0.5*255*value+0.1*value; //g
+				dataW[(3*i)+3*j*width+2] = 0.5*255*value+0.1*value; //b
 
 				dataT[(3*i)+3*j*width+0] = 255*value;
 				dataT[(3*i)+3*j*width+1] = 255*value;
 				dataT[(3*i)+3*j*width+2] = 255*value;
+				// console.log(value);
 
-				var v = 255*2*(value-0.5); 
+				var v = 255*(value);
 				dataP[i+j*width] = v;
+
 				if(v > maxP){
-					maxP = v;
+					maxP = 255*v;
 					maxi = i;
 					maxj = j;
 					// console.log(maxP + " " + i + " ");
