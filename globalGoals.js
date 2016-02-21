@@ -3,7 +3,7 @@ var highwayToRoadThres = 0.0;
 var highwayToRoadAngle = 0.5;
 var highwaySearchAngle = 0.05;
 
-var roadContThresh = 0.2;
+var roadContThresh = 0.3;
 var roadSearchAngle = 0.5;
 
 function globalGoals(r){

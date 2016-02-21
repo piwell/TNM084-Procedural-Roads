@@ -5,7 +5,21 @@ function convert(p){
     return i+j*width;
 }
 
+function convertCoords(p){
+    var i = Math.floor(p.x+width/2);
+    var j = Math.floor(p.y+height/2);
+
+    return i+j*width;
+}
+
 function convert3(p){
+    var i = Math.floor(p.x+width/2);
+    var j = Math.floor(p.y+height/2);
+
+    return 3*i+3*j*width;
+}
+
+function convertCoordsRGB(p){
     var i = Math.floor(p.x+width/2);
     var j = Math.floor(p.y+height/2);
 
@@ -32,7 +46,7 @@ function outsideArea(p){
 }
 
 function inWater(p){
-    return dataW[convert3(p)] == 0;
+    return wMap.inWater(p);
 
 }
 
@@ -44,7 +58,7 @@ function densityAt(p){
     if(outsideArea(p)){
         return 0;
     }else{
-        return dataP[convert(p)]/255.0;
+        return pMap.densityAt(p);
     }
 }
 

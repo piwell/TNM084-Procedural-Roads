@@ -1,64 +1,77 @@
-function createMaps(){
-	var geometry = new THREE.PlaneBufferGeometry(width,height,width,height);
-	// var data = new ArrayBuffer(width*height);
-	dataW = new Uint8Array(width*height*3);
-	dataT = new Uint8Array(width*height*3);
-	dataP = new Uint8Array(width*height);
+function waterMap(w, h, scale, waterlevel){
+	noise.seed(Math.random());
 
-	maxP = 0;
-	maxi = 0;
-	maxj = 0;
-	for(var i=0; i<width; i++){
-		for(var j=0; j<height; j++){
-			value = (1+noise.simplex2(i/1000,j/1000))/2;
+	this.data = new Uint8Array(w*h);
+	this.level = waterlevel;
 
-			if(value > 0.5){
-				value = 2*(value-0.5);
-				dataW[(3*i)+3*j*width+0] = 0.5*255*value+0.1*value; //r
-				dataW[(3*i)+3*j*width+1] = 0.5*255*value+0.1*value; //g
-				dataW[(3*i)+3*j*width+2] = 0.5*255*value+0.1*value; //b
+	for(var i=0; i<w; i++){
+		for(var j=0; j<h; j++){
+			var p = {x:i, y:j};
+			value = (1+noise.simplex2(i/scale, j/scale))/2;
+			value += 0.5*(1+noise.simplex2(i/(0.5*scale), j/(0.5*scale)))/2;
 
-				dataT[(3*i)+3*j*width+0] = 255*value;
-				dataT[(3*i)+3*j*width+1] = 255*value;
-				dataT[(3*i)+3*j*width+2] = 255*value;
-				// console.log(value);
-
-				var v = 255*(value);
-				dataP[i+j*width] = v;
-
-				if(v > maxP){
-					maxP = 255*v;
-					maxi = i;
-					maxj = j;
-					// console.log(maxP + " " + i + " ");
-				}
-
-			}else{
-				dataW[(3*i)+3*j*width+0] = 0;
-				dataW[(3*i)+3*j*width+1] = 0;
-				dataW[(3*i)+3*j*width+2] = 0.4*255*value+0.2*255;
-
-				dataT[(3*i)+3*j*width+0] = 0;//255*0.5;
-				dataT[(3*i)+3*j*width+1] = 0;//255*0.5;
-				dataT[(3*i)+3*j*width+2] = 0;//255*0.5;
-
-				dataP[i+j*width] = 0;
-			}
-
+			value /= 2;
+			this.data[i+j*w] = Math.floor(255*value);
 		}
 	}
 
-	center = new THREE.Vector3(maxi-width/2, maxj-height/2, 0);
-	// console.log(center)
-	// console.log( maxP + " " + maxi + " " + maxj);
+	this.changeWaterlevel = function(waterlevel){
+		this.level = waterlevel;
+	}
 
-	colorTex = new THREE.DataTexture(dataW, width, height, THREE.RGBFormat);	
-	dispTex = new THREE.DataTexture(dataT, width, height, THREE.RGBFormat);	
-	colorTex.needsUpdate = true;
-	dispTex.needsUpdate = true;
-	var mat = new THREE.MeshPhongMaterial( {map: colorTex, displacementMap: dispTex, displacementScale: 0.0*255, side: THREE.DoubleSide} );
-	// console.log(waterMap[50][535])
-	var mesh = new THREE.Mesh(geometry, mat);
-	mesh.position.z = -10;
-	scene.add(mesh);
+	this.inWater = function(p){
+		return (this.data[convertCoords(p)] < this.level);
+	}
+
+}
+
+function populationDensityMap(w, h, scale){
+	noise.seed(Math.random());
+
+	this.data = new Uint8Array(w*h);
+	var x=0, y=0, maxD = 0;
+	for(var i=0; i<w; i++){
+		for(var j=0; j<h; j++){
+			var p= {x:i, y:j};
+			value = (1+noise.simplex2(i/scale, j/scale))/2;
+			this.data[i+j*w] = Math.floor(255*value);
+			if(value > maxD){
+				x = i; y=j; maxD = value;
+			}
+		}	
+	}
+
+	this.center = new THREE.Vector3(x-w/2, y-h/2, 0);
+
+	this.densityAt = function(p){
+		return this.data[convertCoords(p)]/255.0;
+	}
+}
+
+function textureMap(w, h, waterMap, popMap, showPop){
+	var data = new Uint8Array(w*h*3);
+
+	for(var i=0; i<w; i++){
+		for(var j=0; j<h; j++){
+			var p = {x:i-w/2, y:j-h/2};
+
+			if(waterMap.inWater(p)){
+				data[3*(i+j*w)+0] = 0;
+				data[3*(i+j*w)+1] = 0;//0.5*popMap.data[i+j*w];
+				data[3*(i+j*w)+2] = 0.3*waterMap.data[i+j*w];
+			}else{
+				data[3*(i+j*w)+0] = 20;
+				data[3*(i+j*w)+1] = 0.25*popMap.data[i+j*w];
+				data[3*(i+j*w)+2] = 20;
+			}
+		}
+	}
+
+	this.tex = new THREE.DataTexture(data, w, h, THREE.RGBFormat);
+	this.tex.needsUpdate = true;
+	this.material = new THREE.MeshPhongMaterial({map: this.tex, side: THREE.DoubleSide});
+}
+
+function displationMap(w, h){
+
 }

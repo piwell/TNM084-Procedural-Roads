@@ -1,9 +1,9 @@
 function localConstraints(r){
     if(illegalArea(r) && intersections(r)){
-        if(!r.highway && dataP[convert(r.end)] < 20){ // Stop if no popdensity 
-            // r.spawn = false;
-            // return false;
-        }
+        // if(!r.highway && dataP[convert(r.end)] < 20){ // Stop if no popdensity 
+        //     // r.spawn = false;
+        //     // return false;
+        // }
         return true;
     }
     return false;

@@ -1,3 +1,6 @@
+var length = 30;
+var variation = length*0.3;
+
 var segmentCounter;
 var crossings = [];
 var placedSegments = [];
@@ -6,7 +9,7 @@ function roadSegment(p, d, t, highway){
     this.start = p.clone();
     this.highway = highway;
 
-    this.l = 30+10*Math.random();
+    this.l = length+variation*Math.random();
 
     this.dir = d.clone();
 
@@ -40,7 +43,7 @@ function roadSegment(p, d, t, highway){
     this.updateLine(this.end, true);
 } 
 
-function firstSegment(){
+function firstSegment(center){
     segmentCounter = 0;
 
     var d = new THREE.Vector3(0, 1, 0);
