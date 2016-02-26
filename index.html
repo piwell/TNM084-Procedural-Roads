@@ -19,8 +19,6 @@
 		<style>
 			body { width:1000px; background-color:#f2f2f2; margin-top:30px; margin: auto; font-family: "Verdana"}
 			h1 {margin-top: 30px;}
-			/*p  {margin-top: 40px;}*/
-			/*#text {width:1000px;}*/
 		</style>
 	</head>
 	<body>
@@ -45,7 +43,7 @@
 			width = 1000;//window.innerWidth;
 			height = 600;//window.innerHeight;
 
-			roadColor 		= new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 1 } );
+			roadColor 		= new THREE.LineBasicMaterial( { color: 0xaaaaaa, linewidth: 1 } );
 			highwayColor 	= new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 3 } );
 			red 	= new THREE.MeshBasicMaterial( { color: 0xff0000 } );
 			green 	= new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
@@ -98,7 +96,7 @@
 			<p>
 				First two maps are created with a simplex noise function. One water map (the blue areas, where roads can not be created) and the population density map (the green to brown areas. Greener means denser population).
 				</br></br>
-				Then highways and roads are created. They are created one segment at a time. A global goals function suggests new segments based on some rules. Based on the rules a value for that segment is created, if it is over a specified threshold, that segments is suggested. All the suggested segments then pass a local constraints function. This function checks if the segments is valid. If it is not valid the function can alter the segment to make it valid (prune and/or rotate it). Then it checks if the segment intersects another one (and then prune it) or if there is an other intersection nearby to connect to.
+				Then highways (white) and roads (gray) are created. They are created one segment at a time. A global goals function suggests new segments based on some rules. Based on the rules a value for that segment is created, if it is over a specified threshold, that segments is suggested. All the suggested segments then pass a local constraints function. This function checks if the segments is valid. If it is not valid the function can alter the segment to make it valid (prune and/or rotate it). Then it checks if the segment intersects another one (and then prune it) or if there is an other intersection nearby to connect to.
 				</br></br>
 				The highways are meant to connect the densest population areas to each other. They start in the densest point of the map and its only rule is based on population density.This will make it search for other dense areas. They can be created over water (to create "bridges").
 				</br></br>
