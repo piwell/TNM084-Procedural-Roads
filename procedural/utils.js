@@ -1,22 +1,8 @@
-function convert(p){
-    var i = Math.floor(p.x+width/2);
-    var j = Math.floor(p.y+height/2);
-
-    return i+j*width;
-}
-
 function convertCoords(p){
     var i = Math.floor(p.x+width/2);
     var j = Math.floor(p.y+height/2);
 
     return i+j*width;
-}
-
-function convert3(p){
-    var i = Math.floor(p.x+width/2);
-    var j = Math.floor(p.y+height/2);
-
-    return 3*i+3*j*width;
 }
 
 function convertCoordsRGB(p){
@@ -69,9 +55,6 @@ function searchBestAngle(r, maxAngle, steps, valfunc, angles, values){
         values.push(valfunc(r, angles[i+steps]));
     }
 
-    // angles.push(-0.5, 0.0, 0.5);
-    // values.push(valfunc(r,-0.5),valfunc(r,0.0),valfunc(r,0.5));
-    
     function cmprFunc(i,j){
         return values[j]-values[i];
     }
@@ -96,7 +79,7 @@ function populationDensity(r, rot){
     for(var i=0; i<steps; i++){
         p.addScaledVector(d, length*r.l*(i/steps));
         density = densityAt(p);
-        totDensity += density;//dataP[convert(p)];
+        totDensity += density;
         p = r.start.clone();
     }
     return totDensity/steps;
@@ -106,16 +89,7 @@ function createIntersection(pos, color){
     var geometry = new THREE.Geometry();
     geometry.vertices.push(pos);
     var intersectPoint = new THREE.Points(geometry, color);
-    scene.add(intersectPoint);
+    // scene.add(intersectPoint);
 
     crossings.push(pos);
-}
-
-
-function minAngleDist(angle, prevAngle){
-    function cmprFunc(i,j){
-        return Math.abs(prevAngle[i]-angle)-Math.abs(prevAngle[j]-angle);
-    }
-    index = sortIndex(prevAngle, cmprFunc);
-    return Math.abs(prevAngle[index[0]]-angle);
 }
