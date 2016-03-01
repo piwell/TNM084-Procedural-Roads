@@ -8,7 +8,7 @@ function waterMap(w, h, scale, waterlevel){
 		for(var j=0; j<h; j++){
 			value = (1+noise.simplex2(i/scale, j/scale))/2;
 			value += 0.5*(1+noise.simplex2(i/(0.5*scale), j/(0.5*scale)))/2;
-			value /= 2;
+			value /= 2.0;
 
 			this.data[i+j*w] = Math.floor(255*value);
 		}
@@ -33,7 +33,8 @@ function populationDensityMap(w, h, scale){
 		for(var j=0; j<h; j++){
 			value = (1+noise.simplex2(i/scale, j/scale))/2;
 			value += 0.5*(1+noise.simplex2(i/(0.5*scale), j/(0.5*scale)))/2;
-			value /= 2;
+			value += 0.25*(1+noise.simplex2(i/(0.25*scale), j/(0.25*scale)))/2;
+			value /= 2.5;
 
 			this.data[i+j*w] = Math.floor(255*value);
 			if(value > maxD){
@@ -57,13 +58,13 @@ function textureMap(w, h, waterMap, popMap, showPop){
 			var p = {x:i-w/2, y:j-h/2};
 
 			if(waterMap.inWater(p)){
-				data[3*(i+j*w)+0] = 0;
-				data[3*(i+j*w)+1] = 0;//0.5*popMap.data[i+j*w];
-				data[3*(i+j*w)+2] = 0.3*waterMap.data[i+j*w]+10;
+				data[3*(i+j*w)+0] = 60;
+				data[3*(i+j*w)+1] = 60;//0.5*popMap.data[i+j*w];
+				data[3*(i+j*w)+2] = 80+0.4*waterMap.data[i+j*w];
 			}else{
-				data[3*(i+j*w)+0] = 20;
-				data[3*(i+j*w)+1] = 0.25*popMap.data[i+j*w];
-				data[3*(i+j*w)+2] = 20;
+				data[3*(i+j*w)+0] = 60;
+				data[3*(i+j*w)+1] = 40+0.4*popMap.data[i+j*w];
+				data[3*(i+j*w)+2] = 60;
 			}
 		}
 	}
