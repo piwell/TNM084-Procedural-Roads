@@ -1,5 +1,5 @@
 function waterMap(w, h, scale, waterlevel){
-	noise.seed(Math.random());
+	noise.seed(seed);
 
 	this.data = new Uint8Array(w*h);
 	this.level = waterlevel;
@@ -25,7 +25,7 @@ function waterMap(w, h, scale, waterlevel){
 }
 
 function populationDensityMap(w, h, scale){
-	noise.seed(Math.random());
+	noise.seed(seed + 123);
 
 	this.data = new Uint8Array(w*h);
 	var x=0, y=0, maxD = 0;

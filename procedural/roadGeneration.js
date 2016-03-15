@@ -1,5 +1,4 @@
 var length = 20;
-var variation = 0.0;
 
 var crossings = [];
 var placedSegments = [];
@@ -8,7 +7,7 @@ function roadSegment(p, d, t, highway){
     this.start = p.clone();
     this.highway = highway;
 
-    this.l = length;//+variation*length*Math.random();
+    this.l = length+(varyingRoadLength/100.0)*length*(2*Math.random()-1);
 
     this.dir = d.clone();
 
